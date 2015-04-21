@@ -6,15 +6,16 @@ var $ = require('gulp-load-plugins')();
 var browserSync = require('browser-sync');
 var reload = browserSync.reload;
 
-gulp.task('styles', function () {<% if (includeSass) { %>
-  return gulp.src('app/styles/*.scss')
+gulp.task('styles', function () {<% if (includeLess) { %>
+  return gulp.src('app/styles/*.less')
+    .pipe($.plumber())
     .pipe($.sourcemaps.init())
-    .pipe($.sass({
-      outputStyle: 'nested', // libsass doesn't support expanded yet
-      precision: 10,
-      includePaths: ['.'],
-      onError: console.error.bind(console, 'Sass error:')
-    }))<% } else { %>
+    .pipe($.watchLess('app/styles/main.less', {
+      name: 'LESS'
+    }, function(){
+      gulp.start('styles');
+    }))
+    .pipe($.less())<% } else { %>
   return gulp.src('app/styles/*.css')
     .pipe($.sourcemaps.init())<% } %>
     .pipe($.postcss([
@@ -97,7 +98,7 @@ gulp.task('serve', ['styles', 'fonts'], function () {
     '.tmp/fonts/**/*'
   ]).on('change', reload);
 
-  gulp.watch('app/styles/**/*.<%= includeSass ? 'scss' : 'css' %>', ['styles']);
+  gulp.watch('app/styles/**/*.<%= includeLess ? 'less' : 'css' %>', ['styles']);
   gulp.watch('app/fonts/**/*', ['fonts']);
   gulp.watch('bower.json', ['wiredep', 'fonts']);
 });
@@ -115,16 +116,15 @@ gulp.task('serve:dist', function () {
 // inject bower components
 gulp.task('wiredep', function () {
   var wiredep = require('wiredep').stream;
-<% if (includeSass) { %>
-  gulp.src('app/styles/*.scss')
+<% if (includeLess) { %>
+  gulp.src('app/styles/*.less')
     .pipe(wiredep({
       ignorePath: /^(\.\.\/)+/
     }))
     .pipe(gulp.dest('app/styles'));
 <% } %>
   gulp.src('app/*.html')
-    .pipe(wiredep({<% if (includeSass && includeBootstrap) { %>
-      exclude: ['bootstrap-sass-official'],<% } %>
+    .pipe(wiredep({
       ignorePath: /^(\.\.\/)*\.\./
     }))
     .pipe(gulp.dest('app'));

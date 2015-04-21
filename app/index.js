@@ -48,12 +48,8 @@ module.exports = yeoman.generators.Base.extend({
       name: 'features',
       message: 'What more would you like?',
       choices: [{
-        name: 'Sass',
-        value: 'includeSass',
-        checked: true
-      }, {
-        name: 'Bootstrap',
-        value: 'includeBootstrap',
+        name: 'Less',
+        value: 'includeLess',
         checked: true
       }, {
         name: 'Modernizr',
@@ -71,8 +67,7 @@ module.exports = yeoman.generators.Base.extend({
 
       // manually deal with the response, get back and store the results.
       // we change a bit this way of doing to automatically do this in the self.prompt() method.
-      this.includeSass = hasFeature('includeSass');
-      this.includeBootstrap = hasFeature('includeBootstrap');
+      this.includeLess = hasFeature('includeLess');
       this.includeModernizr = hasFeature('includeModernizr');
 
       done();
@@ -100,12 +95,12 @@ module.exports = yeoman.generators.Base.extend({
         dependencies: {}
       };
 
-      if (this.includeBootstrap) {
-        var bs = 'bootstrap' + (this.includeSass ? '-sass-official' : '');
-        bower.dependencies[bs] = '~3.3.1';
-      } else {
-        bower.dependencies.jquery = '~2.1.1';
-      }
+//      if (this.includeBootstrap) {
+//        var bs = 'bootstrap' + (this.includeSass ? '-sass-official' : '');
+//        bower.dependencies[bs] = '~3.3.1';
+//      } else {
+//        bower.dependencies.jquery = '~2.1.1';
+//      }
 
       if (this.includeModernizr) {
         bower.dependencies.modernizr = '~2.8.1';
@@ -132,8 +127,8 @@ module.exports = yeoman.generators.Base.extend({
     mainStylesheet: function () {
       var css = 'main';
 
-      if (this.includeSass) {
-        css += '.scss';
+      if (this.includeLess) {
+        css += '.less';
       } else {
         css += '.css';
       }
@@ -146,30 +141,30 @@ module.exports = yeoman.generators.Base.extend({
       this.indexFile = this.engine(this.indexFile, this);
 
       // wire Bootstrap plugins
-      if (this.includeBootstrap) {
-        var bs = '/bower_components/';
-
-        if (this.includeSass) {
-          bs += 'bootstrap-sass-official/assets/javascripts/bootstrap/';
-        } else {
-          bs += 'bootstrap/js/';
-        }
-
-        this.indexFile = this.appendScripts(this.indexFile, 'scripts/plugins.js', [
-          bs + 'affix.js',
-          bs + 'alert.js',
-          bs + 'dropdown.js',
-          bs + 'tooltip.js',
-          bs + 'modal.js',
-          bs + 'transition.js',
-          bs + 'button.js',
-          bs + 'popover.js',
-          bs + 'carousel.js',
-          bs + 'scrollspy.js',
-          bs + 'collapse.js',
-          bs + 'tab.js'
-        ]);
-      }
+//      if (this.includeBootstrap) {
+//        var bs = '/bower_components/';
+//
+//        if (this.includeSass) {
+//          bs += 'bootstrap-sass-official/assets/javascripts/bootstrap/';
+//        } else {
+//          bs += 'bootstrap/js/';
+//        }
+//
+//        this.indexFile = this.appendScripts(this.indexFile, 'scripts/plugins.js', [
+//          bs + 'affix.js',
+//          bs + 'alert.js',
+//          bs + 'dropdown.js',
+//          bs + 'tooltip.js',
+//          bs + 'modal.js',
+//          bs + 'transition.js',
+//          bs + 'button.js',
+//          bs + 'popover.js',
+//          bs + 'carousel.js',
+//          bs + 'scrollspy.js',
+//          bs + 'collapse.js',
+//          bs + 'tab.js'
+//        ]);
+//      }
 
       this.indexFile = this.appendFiles({
         html: this.indexFile,
@@ -217,18 +212,17 @@ module.exports = yeoman.generators.Base.extend({
       wiredep({
         bowerJson: bowerJson,
         directory: 'bower_components',
-        exclude: ['bootstrap-sass', 'bootstrap.js'],
         ignorePath: /^(\.\.\/)*\.\./,
         src: 'app/index.html'
       });
 
-      if (this.includeSass) {
-        // wire Bower packages to .scss
+      if (this.includeLess) {
+        // wire Bower packages to .less
         wiredep({
           bowerJson: bowerJson,
           directory: 'bower_components',
           ignorePath: /^(\.\.\/)+/,
-          src: 'app/styles/*.scss'
+          src: 'app/styles/*.less'
         });
       }
 
