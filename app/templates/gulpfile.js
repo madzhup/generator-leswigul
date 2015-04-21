@@ -26,6 +26,20 @@ gulp.task('styles', function () {<% if (includeLess) { %>
     .pipe(reload({stream: true}));
 });
 
+<% if (includeSwig) { %>
+gulp.task('templates', function() {
+  return gulp.src(['app/pages/**/*.html'])
+    .pipe($.plumber())
+    .pipe($.swig({
+      defaults: {
+        cache: false
+      }
+    }))
+    .pipe(gulp.dest('.tmp'))
+    .pipe(reload({stream: true}));
+});
+
+<% } %>
 gulp.task('jshint', function () {
   return gulp.src('app/scripts/**/*.js')
     .pipe(reload({stream: true, once: true}))
@@ -37,7 +51,11 @@ gulp.task('jshint', function () {
 gulp.task('html', ['styles'], function () {
   var assets = $.useref.assets({searchPath: ['.tmp', 'app', '.']});
 
+  <% if (includeSwig) { %>
+  return gulp.src('.tmp/*.html')
+  <% } else { %>
   return gulp.src('app/*.html')
+  <% } %>
     .pipe(assets)
     .pipe($.if('*.js', $.uglify()))
     .pipe($.if('*.css', $.csso()))
@@ -78,7 +96,11 @@ gulp.task('extras', function () {
 
 gulp.task('clean', require('del').bind(null, ['.tmp', 'dist']));
 
+<% if (includeSwig) { %>
+gulp.task('serve', ['templates', 'styles', 'fonts'], function () {
+<% } else { %>
 gulp.task('serve', ['styles', 'fonts'], function () {
+<% } %>
   browserSync({
     notify: false,
     port: 9000,
@@ -92,12 +114,14 @@ gulp.task('serve', ['styles', 'fonts'], function () {
 
   // watch for changes
   gulp.watch([
-    'app/*.html',
     'app/scripts/**/*.js',
     'app/images/**/*',
     '.tmp/fonts/**/*'
   ]).on('change', reload);
 
+  <% if (includeSwig) { %>
+  gulp.watch('app/**/*.html', ['templates']);
+  <% } %>
   gulp.watch('app/styles/**/*.<%= includeLess ? 'less' : 'css' %>', ['styles']);
   gulp.watch('app/fonts/**/*', ['fonts']);
   gulp.watch('bower.json', ['wiredep', 'fonts']);

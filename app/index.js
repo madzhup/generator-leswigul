@@ -48,6 +48,10 @@ module.exports = yeoman.generators.Base.extend({
       name: 'features',
       message: 'What more would you like?',
       choices: [{
+        name: 'Swig',
+        value: 'includeSwig',
+        checked: true
+      }, {
         name: 'Less',
         value: 'includeLess',
         checked: true
@@ -67,6 +71,7 @@ module.exports = yeoman.generators.Base.extend({
 
       // manually deal with the response, get back and store the results.
       // we change a bit this way of doing to automatically do this in the self.prompt() method.
+      this.includeSwig = hasFeature('includeSwig');
       this.includeLess = hasFeature('includeLess');
       this.includeModernizr = hasFeature('includeModernizr');
 
@@ -173,7 +178,7 @@ module.exports = yeoman.generators.Base.extend({
         sourceFileList: ['scripts/main.js']
       });
 
-      this.write('app/index.html', this.indexFile);
+      this.write(this.includeSwig ? 'app/_layout.html' : 'app/index.html', this.indexFile);
     },
 
     app: function () {
@@ -183,6 +188,11 @@ module.exports = yeoman.generators.Base.extend({
       this.mkdir('app/images');
       this.mkdir('app/fonts');
       this.copy('main.js', 'app/scripts/main.js');
+
+      if(this.includeSwig){
+        this.mkdir('app/pages');
+        this.copy('page.html', 'app/pages/index.html');
+      }
     }
   },
 
@@ -213,7 +223,7 @@ module.exports = yeoman.generators.Base.extend({
         bowerJson: bowerJson,
         directory: 'bower_components',
         ignorePath: /^(\.\.\/)*\.\./,
-        src: 'app/index.html'
+        src: this.includeSwig ? 'app/_layout.html' : 'app/index.html'
       });
 
       if (this.includeLess) {

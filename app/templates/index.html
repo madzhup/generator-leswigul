@@ -23,6 +23,10 @@
   <!-- endbuild --><% } %>
 </head>
 <body>
+  <% if (includeSwig) { %>
+  {% block main %}
+  {% endblock %}
+  <% } else { %>
   <div class="hero-unit">
     <h1>'Allo, 'Allo!</h1>
     <p>You now have</p>
@@ -32,6 +36,7 @@
       <li>Modernizr</li><% } %>
     </ul>
   </div>
+  <% } %>
 
   <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
   <script>
