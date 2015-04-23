@@ -5,6 +5,7 @@ var gulp = require('gulp');
 var $ = require('gulp-load-plugins')();
 var browserSync = require('browser-sync');
 var reload = browserSync.reload;
+var pngquant = require('imagemin-pngquant');
 
 gulp.task('styles', function () {<% if (includeLess) { %>
   return gulp.src('app/styles/*.less')
@@ -15,11 +16,14 @@ gulp.task('styles', function () {<% if (includeLess) { %>
     }, function(){
       gulp.start('styles');
     }))
-    .pipe($.less())<% } else { %>
+    .pipe($.less({
+      paths: ['.']
+     }))<% } else { %>
   return gulp.src('app/styles/*.css')
     .pipe($.sourcemaps.init())<% } %>
     .pipe($.postcss([
-      require('autoprefixer-core')({browsers: ['last 1 version']})
+      require('autoprefixer-core')({browsers: ['last 1 version']}),
+      require('css-mqpacker').postcss
     ]))
     .pipe($.sourcemaps.write())
     .pipe(gulp.dest('.tmp/styles'))
@@ -72,7 +76,8 @@ gulp.task('images', function () {
       interlaced: true,
       // don't remove IDs from SVGs, they are often used
       // as hooks for embedding and styling
-      svgoPlugins: [{cleanupIDs: false}]
+      svgoPlugins: [{cleanupIDs: false}],
+      use: [pngquant({quality: '65-80', speed: 4})]
     })))
     .pipe(gulp.dest('dist/images'));
 });
@@ -122,12 +127,17 @@ gulp.task('serve', ['styles', 'fonts'], function () {
   <% if (includeSwig) { %>
   gulp.watch('app/**/*.html', ['templates']);
   <% } %>
-  gulp.watch('app/styles/**/*.<%= includeLess ? 'less' : 'css' %>', ['styles']);
   gulp.watch('app/fonts/**/*', ['fonts']);
   gulp.watch('bower.json', ['wiredep', 'fonts']);
 });
 
-gulp.task('serve:dist', function () {
+gulp.task('build:zip', ['build'], function () {
+  return gulp.src('dist/*')
+    .pipe(zip('<%= appname %>.zip'))
+    .pipe(gulp.dest('dist'));
+});
+
+gulp.task('serve:dist', ['build'], function () {
   browserSync({
     notify: false,
     port: 9000,

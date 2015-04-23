@@ -59,21 +59,53 @@ module.exports = yeoman.generators.Base.extend({
         name: 'Modernizr',
         value: 'includeModernizr',
         checked: true
+      }, {
+        name: 'Normalize CSS',
+        value: 'includeNormalizeCss',
+        checked: true
+      }, {
+        name: 'FontAwesome',
+        value: 'includeFontAwesome',
+        checked: true
+      }]
+    }, {
+      type: 'list',
+      name: 'frameworks',
+      message: 'Choose a framework:',
+      default: 'none',
+      choices: [{
+        name: 'Bootstrap',
+        value: 'includeBootstrap'
+      }, {
+        name: 'Uikit',
+        value: 'includeUikit'
+      }, {
+        name: 'None',
+        value: 'none'
       }]
     }];
 
     this.prompt(prompts, function (answers) {
       var features = answers.features;
+      var frameworks = answers.frameworks;
 
       var hasFeature = function (feat) {
         return features.indexOf(feat) !== -1;
       };
+      var hasFramework = function (feat) {
+        return frameworks.indexOf(feat) !== -1;
+      };
+
+      this.includeBootstrap = hasFramework('includeBootstrap');
+      this.includeUikit = hasFramework('includeUikit');
 
       // manually deal with the response, get back and store the results.
       // we change a bit this way of doing to automatically do this in the self.prompt() method.
       this.includeSwig = hasFeature('includeSwig');
       this.includeLess = hasFeature('includeLess');
       this.includeModernizr = hasFeature('includeModernizr');
+      this.includeNormalizeCss = hasFeature('includeNormalizeCss') && !this.includeBootstrap;
+      this.includeFontAwesome = hasFeature('includeFontAwesome') && ! this.includeBootstrap;
 
       done();
     }.bind(this));
@@ -100,12 +132,42 @@ module.exports = yeoman.generators.Base.extend({
         dependencies: {}
       };
 
-//      if (this.includeBootstrap) {
-//        var bs = 'bootstrap' + (this.includeSass ? '-sass-official' : '');
-//        bower.dependencies[bs] = '~3.3.1';
-//      } else {
-//        bower.dependencies.jquery = '~2.1.1';
-//      }
+      if (this.includeBootstrap) {
+        bower.dependencies.bootstrap = '~3.3.4';
+      } else if(this.includeUikit){
+        bower.dependencies.uikit = '~2.19.0';
+        bower.overrides = {
+          uikit: {
+            main: [
+              'less/core/*.less',
+              'js/core/core.js',
+              'js/core/touch.js',
+              'js/core/utility.js',
+              'js/core/smooth-scroll.js',
+              'js/core/scrollspy.js',
+              'js/core/toggle.js',
+              'js/core/alert.js',
+              'js/core/button.js',
+              'js/core/dropdown.js',
+              'js/core/grid.js',
+              'js/core/modal.js',
+              'js/core/nav.js',
+              'js/core/offcanvas.js',
+              'js/core/switcher.js',
+              'js/core/tab.js',
+              'js/core/cover.js'
+            ]
+          }
+        }
+      } else {
+        if(this.includeNormalizeCss){
+          bower.dependencies['normalize-css'] = '~3.0.3';
+        }
+        if(this.includeFontAwesome){
+          bower.dependencies['font-awesome'] = '~4.3.0';
+        }
+        bower.dependencies.jquery = '~2.1.1';
+      }
 
       if (this.includeModernizr) {
         bower.dependencies.modernizr = '~2.8.1';
@@ -146,30 +208,48 @@ module.exports = yeoman.generators.Base.extend({
       this.indexFile = this.engine(this.indexFile, this);
 
       // wire Bootstrap plugins
-//      if (this.includeBootstrap) {
-//        var bs = '/bower_components/';
-//
-//        if (this.includeSass) {
-//          bs += 'bootstrap-sass-official/assets/javascripts/bootstrap/';
-//        } else {
-//          bs += 'bootstrap/js/';
-//        }
-//
-//        this.indexFile = this.appendScripts(this.indexFile, 'scripts/plugins.js', [
-//          bs + 'affix.js',
-//          bs + 'alert.js',
-//          bs + 'dropdown.js',
-//          bs + 'tooltip.js',
-//          bs + 'modal.js',
-//          bs + 'transition.js',
-//          bs + 'button.js',
-//          bs + 'popover.js',
-//          bs + 'carousel.js',
-//          bs + 'scrollspy.js',
-//          bs + 'collapse.js',
-//          bs + 'tab.js'
-//        ]);
-//      }
+      if (this.includeBootstrap) {
+        var bs = '/bower_components/bootstrap/js/';
+
+        this.indexFile = this.appendScripts(this.indexFile, 'scripts/plugins.js', [
+          bs + 'affix.js',
+          bs + 'alert.js',
+          bs + 'dropdown.js',
+          bs + 'tooltip.js',
+          bs + 'modal.js',
+          bs + 'transition.js',
+          bs + 'button.js',
+          bs + 'popover.js',
+          bs + 'carousel.js',
+          bs + 'scrollspy.js',
+          bs + 'collapse.js',
+          bs + 'tab.js'
+        ]);
+      }
+
+      // wire Uikit plugins
+      if (this.includeUikit) {
+        var jspath = '/bower_components/uikit/js/core/';
+
+        // this.indexFile = this.appendScripts(this.indexFile, 'scripts/plugins.js', [
+        //   jspath + 'core.js',
+        //   jspath + 'touch.js',
+        //   jspath + 'utility.js',
+        //   jspath + 'smooth-scroll.js',
+        //   jspath + 'scrollspy.js',
+        //   jspath + 'toggle.js',
+        //   jspath + 'alert.js',
+        //   jspath + 'button.js',
+        //   jspath + 'dropdown.js',
+        //   jspath + 'grid.js',
+        //   jspath + 'modal.js',
+        //   jspath + 'nav.js',
+        //   jspath + 'offcanvas.js',
+        //   jspath + 'switcher.js',
+        //   jspath + 'tab.js',
+        //   jspath + 'cover.js'
+        // ]);
+      }
 
       this.indexFile = this.appendFiles({
         html: this.indexFile,
@@ -222,6 +302,7 @@ module.exports = yeoman.generators.Base.extend({
       wiredep({
         bowerJson: bowerJson,
         directory: 'bower_components',
+        exclude: ['uikit.min.cs', 'uikit.min.js', 'bootstrap.js'],
         ignorePath: /^(\.\.\/)*\.\./,
         src: this.includeSwig ? 'app/_layout.html' : 'app/index.html'
       });
