@@ -1,6 +1,6 @@
 {
   "name": "generator-leswigul",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Scaffold out a front-end web app with less and swig",
   "license": "BSD",
   "repository": "madzhup/generator-leswigul",
