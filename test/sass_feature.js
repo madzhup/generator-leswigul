@@ -11,7 +11,7 @@ describe('Gulp webapp generator: less feature', function () {
         return;
       }
 
-      this.webapp = helpers.createGenerator('gulp-webapp:app', [
+      this.webapp = helpers.createGenerator('leswigul:app', [
         '../../app', [
           helpers.createDummyGenerator(),
           'mocha:app'

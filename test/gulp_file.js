@@ -14,7 +14,7 @@ describe('Gulp Webapp generator: tasks', function () {
         return;
       }
 
-      this.webapp = helpers.createGenerator('gulp-webapp:app', [
+      this.webapp = helpers.createGenerator('leswigul:app', [
         '../../app', [
           helpers.createDummyGenerator(),
           'mocha:app'
@@ -51,6 +51,10 @@ describe('Gulp Webapp generator: tasks', function () {
     assertTaskExists(this.webapp, 'styles', ['includeLess'], done);
   });
 
+  it('should contain templates task with Swig included', function (done) {
+    assertTaskExists(this.webapp, 'templates', ['includeSwig'], done);
+  });
+
   it('should contain jshint task', function (done) {
     assertTaskExists(this.webapp, 'jshint', [], done);
   });
@@ -69,6 +73,10 @@ describe('Gulp Webapp generator: tasks', function () {
 
   it('should contain clean task', function (done) {
     assertTaskExists(this.webapp, 'clean', [], done);
+  });
+
+  it('should contain zip task', function (done) {
+    assertTaskExists(this.webapp, 'build:zip', [], done);
   });
 
   it('should contain build task', function (done) {
