@@ -40,7 +40,7 @@ describe('Gulp webapp generator test', function () {
     ];
 
     helpers.mockPrompt(this.webapp, {
-      features: ['includeSass']
+      features: ['includeLess']
     });
 
     this.webapp.run(function () {
