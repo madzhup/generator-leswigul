@@ -8,7 +8,7 @@ var reload = browserSync.reload;
 var pngquant = require('imagemin-pngquant');
 
 gulp.task('styles', function () {<% if (includeLess) { %>
-  return gulp.src('app/styles/*.less')
+  return gulp.src('app/styles/main.less')
     .pipe($.plumber())
     .pipe($.sourcemaps.init())
     .pipe($.watchLess('app/styles/main.less', {
@@ -55,7 +55,8 @@ function jshint(files) {
 gulp.task('jshint', jshint('app/scripts/**/*.js'));
 gulp.task('jshint:test', jshint('test/spec/**/*.js'));
 
-gulp.task('html', ['styles'], function () {
+<% if (includeSwig) { %>gulp.task('html', ['templates', 'styles'], function () {<% } else { %>
+gulp.task('html', ['styles'], function () {<% } %>
   var assets = $.useref.assets({searchPath: ['.tmp', 'app', '.']});
   <% if (includeSwig) { %>return gulp.src('.tmp/*.html')<% } else { %>
   return gulp.src('app/*.html')<% } %>
@@ -125,10 +126,14 @@ gulp.task('serve', ['styles', 'fonts'], function () {<% } %>
   gulp.watch('bower.json', ['wiredep', 'fonts']);
 });
 
-gulp.task('build:zip', ['build'], function () {
-  return gulp.src('dist/*')
+gulp.task('zip', function () {
+  return gulp.src('dist/**/*')
     .pipe(zip('<%= appname %>.zip'))
     .pipe(gulp.dest('dist'));
+});
+
+gulp.task('build:zip', ['build'], function () {
+  gulp.start('zip');
 });
 
 gulp.task('serve:dist', ['build'], function () {
