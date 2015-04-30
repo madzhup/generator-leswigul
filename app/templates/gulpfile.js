@@ -128,7 +128,7 @@ gulp.task('serve', ['styles', 'fonts'], function () {<% } %>
 
 gulp.task('zip', function () {
   return gulp.src('dist/**/*')
-    .pipe(zip('<%= appname %>.zip'))
+    .pipe($.zip('<%= appname %>.zip'))
     .pipe(gulp.dest('dist'));
 });
 
